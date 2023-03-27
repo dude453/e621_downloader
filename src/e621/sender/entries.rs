@@ -260,6 +260,14 @@ impl Tags {
         .flatten()
         .collect()
     }
+
+    pub(crate) fn format_into_sd_list(self) -> String {
+        let mut combined = self.character;
+        combined.extend(self.species.into_iter());
+        combined.extend(self.general.into_iter());
+
+        combined.join(" ")
+    }
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -129,6 +129,28 @@ impl E621WebConnector {
         trace!("Saved {file_path}...");
     }
 
+    fn replace_extension_for_sd(&self, file_path: &str) -> String {
+        let mut ret: String = file_path.to_owned();
+        ret.replace_range(
+                (ret.rfind('.').unwrap_or(ret.len()))..,
+                ".txt"
+            );
+
+        ret
+    }
+
+    fn save_sd_tags(&self, file_path: &str, bytes: &[u8]) {
+        let new_file_path: String = self.replace_extension_for_sd(file_path);
+        write(&*new_file_path, bytes)
+            .with_context(|e| {
+                error!("Failed to save tags!");
+                trace!("A downloaded taglist was unable to be saved...");
+                format!("{e}")
+            })
+            .unwrap();
+        trace!("Saved {file_path}...");
+    }
+
     /// Removes invalid characters from directory path.
     ///
     /// # Arguments
@@ -239,7 +261,9 @@ impl E621WebConnector {
                 let bytes = self
                     .request_sender
                     .download_image(post.url(), post.file_size());
+                let tag_list_bytes = post.tags_list().as_bytes();
                 self.save_image(file_path.to_str().unwrap(), &bytes);
+                self.save_sd_tags(file_path.to_str().unwrap(), &tag_list_bytes);
                 self.progress_bar.inc(post.file_size() as u64);
             }
 

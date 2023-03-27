@@ -42,6 +42,9 @@ pub(crate) struct GrabbedPost {
     name: String,
     /// The size of the file to download.
     file_size: i64,
+    /// List of tags for sd txt file
+    tags_list: String,
+
 }
 
 impl GrabbedPost {
@@ -58,6 +61,10 @@ impl GrabbedPost {
     /// The size of the file to download.
     pub(crate) fn file_size(&self) -> i64 {
         self.file_size
+    }
+
+    pub(crate) fn tags_list(&self) -> &str {
+        &self.tags_list
     }
 }
 
@@ -107,6 +114,7 @@ impl From<(&PostEntry, &str, u16)> for GrabbedPost {
             url: post.file.url.clone().unwrap(),
             name: format!("{} Page_{:05}.{}", name, current_page, post.file.ext),
             file_size: post.file.size,
+            tags_list: post.tags.clone().format_into_sd_list(),
         }
     }
 }
@@ -125,11 +133,13 @@ impl From<(PostEntry, &str)> for GrabbedPost {
                 url: post.file.url.clone().unwrap(),
                 name: format!("{}.{}", post.file.md5, post.file.ext),
                 file_size: post.file.size,
+                tags_list: post.tags.clone().format_into_sd_list(),
             },
             "id" => GrabbedPost {
                 url: post.file.url.clone().unwrap(),
                 name: format!("{}.{}", post.id, post.file.ext),
                 file_size: post.file.size,
+                tags_list: post.tags.clone().format_into_sd_list(),
             },
             _ => {
                 emergency_exit("Incorrect naming convention!");
@@ -137,6 +147,7 @@ impl From<(PostEntry, &str)> for GrabbedPost {
                     url: String::new(),
                     name: String::new(),
                     file_size: 0,
+                    tags_list: String::new(),
                 }
             }
         }
